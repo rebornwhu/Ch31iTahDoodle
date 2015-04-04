@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+NSString *BNRDocPath(void);
+
 @interface AppDelegate : UIResponder
 <UIApplicationDelegate, UITableViewDataSource>
 

@@ -8,16 +8,32 @@
 
 #import "AppDelegate.h"
 
+NSString *BNRDocPath()
+{
+    NSArray *pathList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    return [pathList[0] stringByAppendingPathComponent:@"data.td"];
+}
+
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
 
-#pragma - Application delegate callbacks
+#pragma mark - Application delegate callbacks
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    //    self.tasks = [NSMutableArray array]; // Not the right way of initializaing app if user already has data stored
+    
+    NSArray *plist = [NSArray arrayWithContentsOfFile:BNRDocPath()];
+    if (plist) {
+        self.tasks = [plist mutableCopy];
+    }
+    else {
+        self.tasks = [NSMutableArray array];
+    }
+    
     CGRect winFrame = [[UIScreen mainScreen] bounds];
     UIWindow *theWindow = [[UIWindow alloc] initWithFrame:winFrame];
     self.window = theWindow;
@@ -28,7 +44,7 @@
     
     self.taskTable = [[UITableView alloc] initWithFrame:tableFrame style:UITableViewStylePlain];
     self.taskTable.separatorStyle = UITableViewCellSeparatorStyleNone;
-    
+    self.taskTable.dataSource = self;
     [self.taskTable registerClass:[UITableViewCell class]
            forCellReuseIdentifier:@"Cell"];
 
@@ -64,6 +80,7 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    [self.tasks writeToFile:BNRDocPath() atomically:YES];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -88,10 +105,30 @@
         return;
     }
     
-    NSLog(@"Task entered: %@", text);
+    //    NSLog(@"Task entered: %@", text);
+    
+    [self.tasks addObject:text];
+    
+    [self.taskTable reloadData];
     
     [self.taskField setText:@""];
     [self.taskField resignFirstResponder];
+}
+
+
+#pragma mark - Table view maangement
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [self.tasks count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *c = [self.taskTable dequeueReusableCellWithIdentifier:@"Cell"];
+    NSString *item = [self.tasks objectAtIndex:indexPath.row];
+    c.textLabel.text = item;
+    
+    return c;
 }
 
 @end
