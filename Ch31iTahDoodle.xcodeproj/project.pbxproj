@@ -163,6 +163,7 @@
 		89B5456A1AD0463C00C0D3D5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				CLASSPREFIX = BNR;
 				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Xiao Lu";
 				TargetAttributes = {
